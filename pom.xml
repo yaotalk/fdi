@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<artifactId>fdi</artifactId>
+	<packaging>jar</packaging>
+	<groupId>com.minivision</groupId>
+
+	<name>fdi archetype</name>
+	<description>Minivision Microservice Archetype</description>
+	<version>0.0.1-SNAPSHOT</version>
+	<url>http://192.168.123.15:8090/pages/viewpage.action?pageId=65580</url>
+	
+	<developers>
+	    <developer>
+	      <id>PanXinmiao</id>
+	      <name>PanXinmiao</name>
+	      <email>panxinmiao@minivision.cn</email>
+	      <organization>minivision.cn</organization>
+	      <organizationUrl>http://192.168.123.15:8090/pages/viewpage.action?pageId=65580</organizationUrl>
+	      <roles>
+	        <role>Tech lead</role>
+	      </roles>
+	    </developer>
+	 </developers>
+	
+	<scm>
+		<url>http://192.168.123.15:8060/browse/open_plat</url>
+	</scm>
+	
+	<parent>
+        <groupId>com.minivision.aop</groupId>
+        <artifactId>microservice-starter-parent</artifactId>
+        <version>1.0.0-RELEASE</version>
+    </parent>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<java.version>1.8</java.version>
+	</properties>
+
+	<repositories>
+		<repository>
+			<id>artifactory</id>
+			<name>Minivision Artifactory Repository</name>
+			<url>http://192.168.123.12:8081/artifactory/libs-release</url>
+		</repository>
+	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>artifactory</id>
+			<name>Minivision Artifactory Repository</name>
+			<url>http://192.168.123.12:8081/artifactory/libs-release</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<dependencies>
+		<dependency>
+		    <groupId>io.springfox</groupId>
+		    <artifactId>springfox-swagger2</artifactId>
+		    <version>2.7.0</version>
+		</dependency>
+		<dependency>
+		    <groupId>io.springfox</groupId>
+		    <artifactId>springfox-swagger-ui</artifactId>
+		    <version>2.7.0</version>
+		</dependency>
+	
+		<dependency>
+			<groupId>com.minivision</groupId>
+			<artifactId>ai-commons</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<!-- POI -->
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>3.17</version>
+		</dependency>
+		<dependency>
+    		<groupId>org.apache.poi</groupId>
+    		<artifactId>poi-ooxml</artifactId>
+    		<version>3.17</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.minivision</groupId>
+			<artifactId>spring-boot-starter-fastdfs</artifactId>
+			<version>1.0.0</version>
+			<exclusions>
+				<exclusion>
+					<groupId>io.netty</groupId>
+            		<artifactId>netty-all</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+		</dependency>
+		<dependency>
+		    <groupId>io.moquette</groupId>
+		    <artifactId>moquette-broker</artifactId>
+		    <version>0.10</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+		    <groupId>org.eclipse.paho</groupId>
+		    <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+		    <version>1.2.0</version>
+		    <scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.security.oauth</groupId>
+			<artifactId>spring-security-oauth2</artifactId>
+		</dependency>
+	</dependencies>
+	
+	<build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.minivision.fdi.App</mainClass>
+                    <executable>true</executable>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
