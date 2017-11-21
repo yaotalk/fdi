@@ -129,4 +129,5 @@ public class PacketUtils {
   public String getDeviceAddr(String sn, String model) {
     return MqttConstant.DEVICE_TOPIC_PREFIX+"/"+model+"/"+sn;
   }
+  
 }

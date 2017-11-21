@@ -8,6 +8,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.NumberUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
@@ -22,6 +23,7 @@ import com.minivision.fdi.annotation.Log;
 import com.minivision.fdi.entity.Device;
 import com.minivision.fdi.exception.ServiceException;
 import com.minivision.fdi.rest.param.CreateDeviceParam;
+import com.minivision.fdi.rest.param.GetActivationCodeParam;
 import com.minivision.fdi.rest.param.QueryDeviceParam;
 import com.minivision.fdi.rest.param.UpdateDeviceParam;
 import com.minivision.fdi.rest.result.common.PageResult;
@@ -46,6 +48,7 @@ public class DeviceApi {
   @RequestMapping(value = "createDevice")
   @ApiOperation(value = "新增设备", notes = "新增设备")
   @Log(module = "设备管理", operation = "新增设备")
+  @PreAuthorize("hasAuthority('DEV_EDIT')")
   public RestResult<Device> createDevice(@Valid @ModelAttribute CreateDeviceParam param, BindingResult errResult) {
     if (errResult.hasErrors()) {
       List<ObjectError> errorList = errResult.getAllErrors();
@@ -69,6 +72,7 @@ public class DeviceApi {
   @RequestMapping(value = "updateDevice")
   @ApiOperation(value = "修改设备信息", notes = "修改设备信息")
   @Log(module = "设备管理", operation = "修改设备信息")
+  @PreAuthorize("hasAuthority('DEV_EDIT')")
   public RestResult<Device> updateDevice(@Valid @ModelAttribute UpdateDeviceParam param, BindingResult errResult) {
     if (errResult.hasErrors()) {
       List<ObjectError> errorList = errResult.getAllErrors();
@@ -95,6 +99,7 @@ public class DeviceApi {
       @ApiImplicitParam(name = "id", value = "设备ID", paramType = "query", dataType = "long", required = true)
   })
   @Log(module = "设备管理", operation = "删除设备")
+  @PreAuthorize("hasAuthority('DEV_EDIT')")
   public RestResult<String> deleteDevice(@RequestParam("id") long id) {
     if (id <= 0) {
       throw new ServiceException("设备ID无效");
@@ -116,6 +121,7 @@ public class DeviceApi {
       @ApiImplicitParam(name = "deviceIds", value = "设备ID，多个值以英文逗号分隔", paramType = "query", dataType = "String", required = true)
   })
   @Log(module = "设备管理", operation = "批量删除设备")
+  @PreAuthorize("hasAuthority('DEV_EDIT')")
   public RestResult<String> deleteBatch(@RequestParam("deviceIds") String deviceIds) {
     if (!StringUtils.hasText(deviceIds)) {
       throw new ServiceException("请指定要删除的设备ID！");
@@ -131,9 +137,31 @@ public class DeviceApi {
     return new RestResult<>("");
   }
   
+  @RequestMapping(value = "activate")
+  @ApiOperation(value = "激活设备", notes = "激活设备")
+  @ApiImplicitParams(value = {
+      @ApiImplicitParam(name = "deviceSn", value = "设备编号", paramType = "query", dataType = "String", required = true)
+  })
+  @Log(module = "设备管理", operation = "激活设备")
+  public RestResult<String> activate(@RequestParam("deviceSn") String deviceSn) {
+    if (!StringUtils.hasText(deviceSn)) {
+      throw new ServiceException("请指定要激活的设备编号！");
+    }
+    
+    try {
+      deviceService.activateDevice(deviceSn);
+    } catch (Throwable e) {
+      log.error("激活设备失败", e);
+      throw new ServiceException("激活设备失败");
+    }
+    
+    return new RestResult<>("");
+  }
+  
   @RequestMapping(value = "deviceList")
   @ApiOperation(value = "获取设备列表", notes = "获取设备列表")
   @Log(module = "设备管理", operation = "查询设备")
+  @PreAuthorize("hasAuthority('DEV_QUERY')")
   public RestResult<PageResult<Device>> deviceList(@Valid @ModelAttribute QueryDeviceParam param, BindingResult errResult) {
     if (errResult.hasErrors()) {
       List<ObjectError> errorList = errResult.getAllErrors();
@@ -157,6 +185,30 @@ public class DeviceApi {
     }
     
     return new RestResult<>(result);
+  }
+  
+  @RequestMapping(value = "activationCode")
+  @ApiOperation(value = "获取设备激活码", notes = "获取设备激活码，激活码为16位字符，显示时用分隔符以4位分隔显示")
+  @Log(module = "设备管理", operation = "获取设备激活码")
+  @PreAuthorize("hasAuthority('DEV_QUERY')")
+  public RestResult<String> activationCode(@Valid @ModelAttribute GetActivationCodeParam param, BindingResult errResult) {
+    if (errResult.hasErrors()) {
+      List<ObjectError> errorList = errResult.getAllErrors();
+      for(ObjectError error : errorList){
+        log.error(error.getDefaultMessage());
+      }
+      throw new ServiceException(errorList.get(0).getDefaultMessage());
+    }
+    
+    String code = "";
+    try {
+      code = deviceService.getActivationCode(param.getModel(), param.getSn());
+    } catch (Throwable e) {
+      log.error("获取设备激活码失败", e);
+      throw new ServiceException("获取设备激活码失败");
+    }
+    
+    return new RestResult<>(code);
   }
   
 }

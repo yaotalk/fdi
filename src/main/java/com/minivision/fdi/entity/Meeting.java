@@ -7,6 +7,7 @@ import com.minivision.fdi.listener.MeetingOperationListener;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -15,6 +16,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.Set;
 
@@ -39,13 +41,20 @@ public class Meeting {
 
   private String venue;
 
+  @NotBlank
   private String address;
 
-  private long startTime;
+  @NotNull
+  private Long startTime;
 
-  private long endTime;
+  @NotNull
+  private Long endTime;
 
-  private long deadline;
+  @NotNull
+  private Long deadline;
+
+  @NotNull
+  private Long signTime;
 
   @Transient
   private int faceCount;
@@ -74,6 +83,8 @@ public class Meeting {
   @Override public String toString() {
     return "Meeting{" + "token='" + token + '\'' + ", name='" + name + '\'' + ", updateTime="
         + updateTime + ", venue='" + venue + '\'' + ", address='" + address + '\'' + ", startTime="
-        + startTime + ", endTime=" + endTime + ", deadline=" + deadline +  '}';
+        + startTime + ", endTime=" + endTime + ", deadline=" + deadline + ", signTime=" + signTime
+        + ", faceCount=" + faceCount + ", status=" + status + ", faces=" + faces + ", creator='"
+        + creator + '\'' + ", modifier='" + modifier + '\'' + '}';
   }
 }

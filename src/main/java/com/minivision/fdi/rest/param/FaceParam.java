@@ -21,8 +21,11 @@ public class FaceParam extends PageParam {
 
     private String meetName;
 
+    private String meetToken;
+
     @Override public String toString() {
         return "FaceParam{" + "name='" + name + '\'' + ", phoneNumber='" + phoneNumber + '\''
-            + ", companyName='" + companyName + '\'' + ", meetName='" + meetName + '\'' + '}';
+            + ", companyName='" + companyName + '\'' + ", meetName='" + meetName + '\''
+            + ", meetToken='" + meetToken + '\'' + '}';
     }
 }

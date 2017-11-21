@@ -10,8 +10,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.convert.converter.ConditionalGenericConverter;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
+import org.springframework.core.convert.support;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;

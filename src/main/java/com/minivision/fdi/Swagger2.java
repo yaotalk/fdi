@@ -2,6 +2,7 @@ package com.minivision.fdi;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -47,6 +48,8 @@ public class Swagger2 {
               .apis(RequestHandlerSelectors.basePackage("com.minivision.fdi"))
               .paths(PathSelectors.any())
               .build();
+              //.securitySchemes(Arrays.asList(baseAuth()))
+              //.securityContexts(securityContext());
     }
 
     private ApiInfo apiInfo() {
@@ -59,4 +62,29 @@ public class Swagger2 {
                 .build();
     }
 
+    
+/*    private SecurityScheme baseAuth() {
+      return new BasicAuth("auth");
+    }
+  
+    
+    private SecurityContext makeSecurityContext(String path, AuthorizationScope... scopes) {
+        SecurityReference securityReference = SecurityReference
+          .builder()
+          .reference("auth")
+          .scopes(scopes)
+          .build();
+
+        return SecurityContext
+          .builder()
+          .securityReferences(Arrays.asList(securityReference))
+          .forPaths(PathSelectors.ant(path))
+          .build();
+    }
+    
+    
+    private List<SecurityContext> securityContext() {
+      SecurityContext faceContext = makeSecurityContext("/api/v1/user/*", new AuthorizationScope("user", "须登录的用户相关"));
+      return Arrays.asList(faceContext);
+    }*/
 }

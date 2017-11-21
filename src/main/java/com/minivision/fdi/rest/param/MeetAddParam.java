@@ -27,12 +27,17 @@ public class MeetAddParam {
     @ApiModelProperty(required = true,value = "时间戳(ms)")
     private Long endTime;
 
-    @ApiModelProperty(required = true,value = "时间戳(ms)")
+    @NotNull
+    @ApiModelProperty(required = true,value = "签到开始时间(ms)")
+    private Long signTime;
+
+    @NotNull
+    @ApiModelProperty(required = true,value = "签到截止时间(ms)")
     private Long deadline;
 
     @Override public String toString() {
         return "MeetAddParam{" + "name='" + name + '\'' + ", venue='" + venue + '\'' + ", address='"
-            + address + '\'' + ", startTime=" + startTime + ", endTime=" + endTime + ", deadline="
-            + deadline + '}';
+            + address + '\'' + ", startTime=" + startTime + ", endTime=" + endTime + ", signTime="
+            + signTime + ", deadline=" + deadline + '}';
     }
 }

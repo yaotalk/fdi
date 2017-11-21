@@ -4,6 +4,7 @@ import java.util.List;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.ui.Model;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,8 +22,6 @@ import com.minivision.fdi.entity.Role;
 import com.minivision.fdi.rest.result.common.RestResult;
 import com.minivision.fdi.service.AuthService;
 
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import springfox.documentation.annotations.ApiIgnore;
 
@@ -33,41 +32,34 @@ public class AuthApi {
   @Autowired
   private AuthService authService;
 
+  @PreAuthorize("hasAuthority('MG_ROLE_EDIT')")
   @PostMapping("/role")
   @ApiOperation("创建新角色")
   @Log(module = "权限管理", operation = "创建新角色")
-  @ApiImplicitParams({
-    @ApiImplicitParam(name="name", required = true, paramType = "query"),
-    @ApiImplicitParam(name="nickName", required = true, paramType = "query"),
-    @ApiImplicitParam(name="description", paramType = "query"),
-    @ApiImplicitParam(name="permIds", paramType = "query")})
-  public RestResult<Role> createRole(@Valid @ApiIgnore Role role, String permIds){
+  public RestResult<Role> createRole(@Valid Role role, String permIds){
     Role createRole = authService.saveOrUpdateRole(role, permIds);
     return new RestResult<>(createRole);
   }
   
+  @PreAuthorize("hasAuthority('MG_ROLE_EDIT')")
   @PutMapping("/role/{id}")
   @ApiOperation("更新角色信息")
   @Log(module = "权限管理", operation = "更新角色信息")
-  @ApiImplicitParams({
-    @ApiImplicitParam(name="name", paramType = "query"),
-    @ApiImplicitParam(name="nickName", paramType = "query"),
-    @ApiImplicitParam(name="description", paramType = "query"),
-    @ApiImplicitParam(name="permIds", paramType = "query")})
-  public RestResult<Role> updateRole(@Valid @ModelAttribute("role") @ApiIgnore Role role, @PathVariable(value="id") long id, String permIds){
+  public RestResult<Role> updateRole(@PathVariable(value="id") long id, @Valid @ModelAttribute("role") Role role, String permIds){
     Assert.notNull(role, "Role[id="+id+"] not exist");
     Role r = authService.saveOrUpdateRole(role, permIds);
     return new RestResult<Role>(r);
   }
   
   @ModelAttribute
-  public void updateRole(@PathVariable(value="id", required=false) Long id, Model model){
+  public void loadRole(@PathVariable(value="id", required=false) Long id, Model model){
       if(null != id){
          Role role = authService.getRole(id);
          model.addAttribute("role", role);
       }
   }
   
+  @PreAuthorize("hasAuthority('MG_ROLE_EDIT')")
   @DeleteMapping("/role/{id}")
   @ApiOperation("删除角色")
   @Log(module = "权限管理", operation = "删除角色")
@@ -76,14 +68,15 @@ public class AuthApi {
     return new RestResult<>();
   }
   
+  @PreAuthorize("hasAuthority('MG_ROLE_QUERY')")
   @GetMapping("/role/{id}")
   @ApiOperation("获取角色信息")
   @Log(module = "权限管理", operation = "获取角色信息")
-  public RestResult<Role> getRole(@PathVariable("id") long id){
-    Role role = authService.getRole(id);
+  public RestResult<Role> getRole(@PathVariable("id") long id, @ApiIgnore @ModelAttribute("role") Role role){
     return new RestResult<Role>(role);
   }
   
+  @PreAuthorize("hasAuthority('MG_ROLE_QUERY')")
   @GetMapping("/roles")
   @ApiOperation("列出系统所有角色列表")
   @Log(module = "权限管理", operation = "列出系统所有角色列表")
@@ -92,6 +85,7 @@ public class AuthApi {
     return new RestResult<>(roles);
   }
   
+  @PreAuthorize("hasAuthority('MG_ROLE_QUERY')")
   @GetMapping("/permissions")
   @ApiOperation("列出系统所有权限列表")
   @Log(module = "权限管理", operation = "列出系统所有权限列表")

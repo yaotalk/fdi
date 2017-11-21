@@ -11,8 +11,8 @@ import com.minivision.fdi.rest.result.FaceRecognitionResult;
 
 public interface StatsService {
 
-  Stats createStats(CreateStatsParam stats) throws Exception;
-  List<Stats> createBatch(List<CreateStatsParam> statsList) throws Exception;
+  Stats createStats(CreateStatsParam stats);
+  List<Stats> createBatch(List<CreateStatsParam> statsList);
   
   Page<FaceRecognitionResult> findByPage(QueryStatsParam param);
   

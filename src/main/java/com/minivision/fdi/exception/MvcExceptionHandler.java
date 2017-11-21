@@ -3,6 +3,7 @@ package com.minivision.fdi.exception;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -28,25 +29,25 @@ public class MvcExceptionHandler {
   @ResponseBody
   public RestResult<?> handleRequestException(HttpServletRequest request, HttpServletResponse response, ServletRequestBindingException ex) {
     log.error("",ex);
-    response.setStatus(400);
-    return new RestResult<>(ex, 400);
+    response.setStatus(HttpStatus.BAD_REQUEST.value());
+    return new RestResult<>(ex, HttpStatus.BAD_REQUEST.value());
   }
   
   
   @ExceptionHandler(AccessDeniedException.class)
   @ResponseBody
   public Object handleException(HttpServletRequest request, HttpServletResponse response, AccessDeniedException ex) {
-    log.error("",ex);
-    response.setStatus(403);
-    return new RestResult<>(ex, 403);
+    log.error(ex.getMessage());
+    response.setStatus(HttpStatus.FORBIDDEN.value());
+    return new RestResult<>(ex, HttpStatus.FORBIDDEN.value());
   }
 
   @ExceptionHandler(Throwable.class)
   @ResponseBody
   public Object handleException(HttpServletRequest request, HttpServletResponse response, Throwable ex) {
     log.error("",ex);
-    response.setStatus(500);
-    return new RestResult<>(ex, 500);
+    response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+    return new RestResult<>(ex, HttpStatus.INTERNAL_SERVER_ERROR.value());
   }
   
 }

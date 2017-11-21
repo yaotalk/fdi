@@ -1,5 +1,6 @@
 package com.minivision.fdi.service;
 
+import com.minivision.fdi.domain.FaceMsg;
 import com.minivision.fdi.domain.FaceRecMsg;
 import com.minivision.fdi.domain.QrRecMsg;
 import com.minivision.fdi.rest.param.FaceAddParam;
@@ -23,7 +24,7 @@ public interface FaceService {
 
     FaceDelResult delete(FaceDelParam faceDelParam);
 
-    Face search(FaceRecMsg faceRecMsg) throws RuntimeException;
+    FaceMsg search(FaceRecMsg faceRecMsg) throws RuntimeException;
 
-    Face searchByQrCode(QrRecMsg regMsg);
+    FaceMsg searchByQrCode(QrRecMsg regMsg);
 }

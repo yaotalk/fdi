@@ -47,19 +47,23 @@ public class StatsServiceImpl implements StatsService {
   @Autowired
   private FdfsService fdfsService;
   
-  private Stats convertParam(CreateStatsParam param) throws Exception {
+  private Stats convertParam(CreateStatsParam param) {
     Stats record = new Stats();
     BeanUtils.copyProperties(param, record);
     record.setDetectTime(new Date(param.getTime()));
     if (StringUtils.hasText(param.getCapImg())) {
       byte[] capImgBytes = Base64.decode(param.getCapImg(), Base64.DEFAULT);
-      record.setCapImgUrl(fdfsService.getFileUrl(fdfsService.uploadToFastDFS(param.getFaceId() + "_cap.jpg", capImgBytes)));
+      try {
+        record.setCapImgUrl(fdfsService.getFileUrl(fdfsService.uploadToFastDFS(param.getFaceId() + "_cap.jpg", capImgBytes)));
+      } catch (Throwable e) {
+        log.error("保存识别日志抓拍照片失败", e);
+      }
     }
     return record;
   }
 
   @Override
-  public Stats createStats(CreateStatsParam stats) throws Exception {
+  public Stats createStats(CreateStatsParam stats) {
     Stats created = statsRepo.saveAndFlush(convertParam(stats));
     if (created != null) {
       String meetingToken = stats.getMeetingToken();
@@ -69,7 +73,7 @@ public class StatsServiceImpl implements StatsService {
   }
 
   @Override
-  public List<Stats> createBatch(List<CreateStatsParam> param) throws Exception {
+  public List<Stats> createBatch(List<CreateStatsParam> param) {
     List<Stats> statsList = new ArrayList<>();
     for (CreateStatsParam createStatsParam : param) {
       statsList.add(convertParam(createStatsParam));
@@ -88,7 +92,7 @@ public class StatsServiceImpl implements StatsService {
         + " from stats s,meeting m,face f where s.meeting_token = m.token and s.face_id = f.id";
     String querySql = baseSql;
     querySql += " and m.meeting_name like ?";
-    querySql += " and f.company_name like ?";
+    querySql += " and (f.company_name is null or f.company_name like ?)";
     querySql += " and f.name like ?";
     long total = 0;
     String countSql = "select count(*) from (" + querySql + ") temp";

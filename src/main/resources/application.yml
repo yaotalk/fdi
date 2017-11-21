@@ -7,13 +7,9 @@ logging:
     io.moquette: INFO
     messageLogger: WARN
 spring:
-  resources.static-locations:
-    - classpath:/META-INF/resources/
-    - classpath:/resources/
-    - classpath:/static/
-    - file:${system.store}
   jpa:
     hibernate.ddl-auto: update
+    show-sql: true
   datasource:
     url: jdbc:mysql://192.168.123.12:3306/iot-platform?characterEncoding=UTF-8&autoReconnect=true&useSSL=false
     username: root
@@ -26,12 +22,12 @@ faceservice:
   maxConcurrent: 32
   imageExecutorThreads: 10
   maxImageOverStock: 256
-  bathPath: http://localhost:8081
+  bathPath: http://192.168.123.84:8081
   oauth: 
     apiKey: faceplat_user
     apiSecret: faceplat
     username: admin
     password: admin
 system:
-  store: D://
-  store.people: ${system.store}people
+  config:
+    threshold: 0.8

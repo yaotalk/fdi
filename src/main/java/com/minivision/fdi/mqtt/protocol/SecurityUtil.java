@@ -58,13 +58,12 @@ public class SecurityUtil {
     return new String(Hex.encode(digest));
   }
   
-  private byte[] digest(CharSequence rawPassword, byte[] salt) {
+  public byte[] digest(CharSequence rawPassword, byte[] salt) {
     byte[] digest = digest(concatenate(salt, secret, Utf8.encode(rawPassword)));
     return concatenate(salt, digest);
   }
   
-  
-  public byte[] digest(byte[] value) {
+  private byte[] digest(byte[] value) {
     for (int i = 0; i < iterations; i++) {
         value = messageDigest.digest(value);
     }

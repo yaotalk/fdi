@@ -5,6 +5,7 @@ import java.util.List;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
@@ -42,9 +43,10 @@ public class BizConfigApi {
   @ApiOperation(value = "新增配置", notes = "新增配置")
   @Log(module = "配置管理", operation = "新增配置")
   @ApiImplicitParams({
-    @ApiImplicitParam(name = "img", paramType = "form", dataType = "file"),
-    @ApiImplicitParam(name = "audio", paramType = "form", dataType = "file")
+    @ApiImplicitParam(name = "img", paramType = "form", dataType = "__file"),
+    @ApiImplicitParam(name = "audio", paramType = "form", dataType = "__file")
   })
+  @PreAuthorize("hasAuthority('FACE_MEETING')")
   public RestResult<BizConfig> createBizConfig(@Valid @ModelAttribute CreateBizConfigParam param, BindingResult errResult) {
     Assert.isTrue(StringUtils.hasText(param.getMeetingToken()) || StringUtils.hasText(param.getDeviceSn()), "配置关联实体ID和设备编号两者必须有一个有值");
     Assert.state(!(StringUtils.hasText(param.getMeetingToken()) && StringUtils.hasText(param.getDeviceSn())), "配置关联实体ID和设备编号两者不能同时有值");
@@ -73,9 +75,10 @@ public class BizConfigApi {
   @ApiOperation(value = "修改配置", notes = "修改配置")
   @Log(module = "配置管理", operation = "修改配置")
   @ApiImplicitParams({
-    @ApiImplicitParam(name = "img", paramType = "form", dataType = "file"),
-    @ApiImplicitParam(name = "audio", paramType = "form", dataType = "file")
+    @ApiImplicitParam(name = "img", paramType = "form", dataType = "__file"),
+    @ApiImplicitParam(name = "audio", paramType = "form", dataType = "__file")
   })
+  @PreAuthorize("hasAuthority('FACE_MEETING')")
   public RestResult<BizConfig> updateBizConfig(@Valid @ModelAttribute UpdateBizConfigParam param, BindingResult errResult) {
     if (errResult.hasErrors()) {
       List<ObjectError> errorList = errResult.getAllErrors();
@@ -99,6 +102,7 @@ public class BizConfigApi {
   @RequestMapping(value = "findBizConfig")
   @ApiOperation(value = "查询配置", notes = "查询配置")
   @Log(module = "配置管理", operation = "查询配置")
+  @PreAuthorize("hasAuthority('FACE_MEETING')")
   public RestResult<BizConfig> findBizConfig(@Valid @ModelAttribute QueryBizConfigParam param, BindingResult errResult) {
     Assert.isTrue(StringUtils.hasText(param.getMeetingToken()) || StringUtils.hasText(param.getDeviceSn()), "配置关联实体ID和设备编号两者必须有一个有值");
     Assert.state(!(StringUtils.hasText(param.getMeetingToken()) && StringUtils.hasText(param.getDeviceSn())), "配置关联实体ID和设备编号两者不能同时有值");

@@ -9,7 +9,10 @@ public class UsernameAuditor implements AuditorAware<String> {
 
   @Override
   public String getCurrentAuditor() {
-    return SecurityContextHolder.getContext().getAuthentication().getName();
+    if (SecurityContextHolder.getContext().getAuthentication() != null) {
+      return SecurityContextHolder.getContext().getAuthentication().getName();
+    }
+    return "";
   }
 
 }

@@ -5,8 +5,8 @@ import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.security.crypto.password.StandardPasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import com.minivision.fdi.device.DeviceService;
 import com.minivision.fdi.entity.Device;
+import com.minivision.fdi.service.DeviceService;
 
 import io.moquette.spi.security.IAuthenticator;
 import lombok.extern.slf4j.Slf4j;

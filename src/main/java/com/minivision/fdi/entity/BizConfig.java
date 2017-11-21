@@ -47,7 +47,6 @@ public class BizConfig extends IdEntity {
   private Integer detectTries = 3;
 
   private Float successThreshold;
-  private Float failureThreshold;
 
   private Boolean one2oneOn = false;
   private Boolean one2NOn = false;

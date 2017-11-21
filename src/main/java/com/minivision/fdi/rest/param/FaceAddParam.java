@@ -30,6 +30,7 @@ public class FaceAddParam {
 
     private String idCard;
 
+    @ApiModelProperty(value = "图片，最大不超过10MB")
     MultipartFile imgFile;
 
     @ApiModelProperty(value = "二维码")

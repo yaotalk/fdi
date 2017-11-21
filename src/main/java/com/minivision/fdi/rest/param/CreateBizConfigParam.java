@@ -21,7 +21,7 @@ public class CreateBizConfigParam extends RestParam {
   private String deviceSn;
   
   @NotBlank(message = "交互文本不能为空")
-  @ApiModelProperty(value = "交互文本", required = true)
+  @ApiModelProperty(value = "交互文本")
   private String text;
   @ApiModelProperty(value = "交互图片")
   private MultipartFile img;
@@ -33,8 +33,8 @@ public class CreateBizConfigParam extends RestParam {
   
   @ApiModelProperty(value = "成功阀值")
   private Float successThreshold;
-  @ApiModelProperty(value = "失败阀值")
-  private Float failureThreshold;
+  /*@ApiModelProperty(value = "失败阀值")
+  private Float failureThreshold;*/
   
   @ApiModelProperty(value = "是否开启1:1")
   private Boolean one2oneOn;
@@ -48,7 +48,7 @@ public class CreateBizConfigParam extends RestParam {
     return "CreateBizConfigParam [meetingToken=" + meetingToken + ", deviceSn=" + deviceSn + ", text=" + text
         + ", img=" + img.getOriginalFilename() + ", audio=" + audio.getOriginalFilename()
         + ", successThreshold=" + successThreshold
-        + ", failureThreshold=" + failureThreshold + ", one2oneOn=" + one2oneOn + ", one2NOn="
+        + ", one2oneOn=" + one2oneOn + ", one2NOn="
         + one2NOn + ", livebodyOn=" + livebodyOn + "]";
   }
 

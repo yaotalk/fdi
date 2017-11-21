@@ -51,6 +51,8 @@ public class Face{
 
   private String imgPath;
 
+  private boolean signIn;
+
   @Override public String toString() {
     return "Face{" + "id='" + id + '\'' + ", faceToken='" + faceToken + '\'' + ", name='" + name
         + '\'' + ", vip=" + vip + ", position='" + position + '\'' + ", companyName='" + companyName

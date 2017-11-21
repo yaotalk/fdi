@@ -6,7 +6,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.springframework.core.annotation.AliasFor;
 import org.springframework.stereotype.Component;
 
 @Target({ElementType.TYPE})
@@ -21,17 +20,6 @@ public @interface MqttMessageHandler {
   @Documented
   public @interface TopicHandler {
     String value();
-  }
-  
-  @Target({ElementType.METHOD})
-  @Retention(RetentionPolicy.RUNTIME)
-  @Documented
-  public @interface CmdHandler {
-    @AliasFor("code")
-    int[] value() default {};
-    @AliasFor("value")
-    int[] code() default {};
-    int[] type() default {};
   }
   
   @Target({ElementType.PARAMETER})

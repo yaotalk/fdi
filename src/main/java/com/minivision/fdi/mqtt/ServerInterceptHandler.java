@@ -3,8 +3,8 @@ package com.minivision.fdi.mqtt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.minivision.fdi.device.DeviceService;
 import com.minivision.fdi.mqtt.core.TopicMessageDeliver;
+import com.minivision.fdi.service.DeviceService;
 
 import io.moquette.interception.InterceptHandler;
 import io.moquette.interception.messages.InterceptAcknowledgedMessage;

@@ -27,11 +27,15 @@ public class MeetUpdateParam {
     private Long endTime;
 
     @ApiModelProperty(value = "时间戳(ms),不填时默认原始值")
+    private Long signTime;
+
+    @ApiModelProperty(value = "时间戳(ms),不填时默认原始值")
     private Long deadline;
 
     @Override public String toString() {
         return "MeetUpdateParam{" + "token='" + token + '\'' + ", name='" + name + '\''
             + ", venue='" + venue + '\'' + ", address='" + address + '\'' + ", startTime="
-            + startTime + ", endTime=" + endTime + ", deadline=" + deadline + '}';
+            + startTime + ", endTime=" + endTime + ", signTime=" + signTime + ", deadline="
+            + deadline + '}';
     }
 }

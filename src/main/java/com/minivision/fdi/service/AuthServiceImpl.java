@@ -25,9 +25,6 @@ public class AuthServiceImpl extends BaseService implements AuthService{
 
   @Override
   public Role saveOrUpdateRole(Role role, String permIds) {
-    //Role role = getRole(id);
-    //Assert.notNull(role, "Role[id = "+id+"] not exist.");
-    //role.setNickName(nickName);
     String[] ids = StringUtils.split(permIds, ",");
     if(ids != null){
       Set<Long> idList = Arrays.stream(ids).map(i -> Long.valueOf(i)).collect(Collectors.toSet());

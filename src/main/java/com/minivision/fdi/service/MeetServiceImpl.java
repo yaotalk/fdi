@@ -5,19 +5,17 @@ import java.util.Optional;
 
 import javax.persistence.criteria.Predicate;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import com.hazelcast.util.UuidUtil;
 import com.minivision.ai.util.ChunkRequest;
 import com.minivision.fdi.domain.MeetingStatus;
 import com.minivision.fdi.entity.Meeting;
@@ -38,6 +36,7 @@ import com.minivision.fdi.rest.result.MeetingUpdateResult;
 import com.minivision.fdi.rest.result.common.PageResult;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 
 @Service
 @Slf4j
@@ -53,6 +52,8 @@ public class MeetServiceImpl implements MeetService, ApplicationEventPublisherAw
 
     @Override public MeetingAddResult addMeeting(MeetAddParam meetAddParam) throws ServiceException{
         try {
+            Meeting exMeeting = meetRepository.findByNameEquals(meetAddParam.getName());
+            Assert.isNull(exMeeting,"meet name can not be duplicate");
             Assert.isTrue(meetAddParam.getEndTime() > meetAddParam.getStartTime(),"endTime must be greater than startTime");
             Meeting meeting = new Meeting();
 //            meeting.setUpdateTime(new Date());
@@ -65,7 +66,6 @@ public class MeetServiceImpl implements MeetService, ApplicationEventPublisherAw
                 return new MeetingAddResult(meeting.getToken());
             }
             else {
-                //TODO EXCEPTION
                 throw new ServiceException("unknown exception");
             }
         }catch (Exception e){
@@ -75,50 +75,70 @@ public class MeetServiceImpl implements MeetService, ApplicationEventPublisherAw
     }
 
     @Override public PageResult<Meeting> findByPlat(MeetParam meetParam) {
-        Pageable page = new ChunkRequest(meetParam.getOffset(),meetParam.getLimit());
+        Pageable page = new ChunkRequest(meetParam.getOffset(), meetParam.getLimit(), new Sort(Sort.Direction.DESC, "updateTime"));
         Page<Meeting> meets = meetRepository.findAll((root, query, cb) -> {
-            Predicate predicate;
+            Predicate predicate = null;
             Predicate status = null;
             long now = new Date().getTime();
-            if(meetParam.getStatus() == null){
-                  status = cb.greaterThanOrEqualTo(root.get("startTime"),now);
-            }
-            else
-            switch (meetParam.getStatus()){
-                case NOT_STARTED:
-                    status = cb.greaterThanOrEqualTo(root.get("startTime"),now);
-                    break;
-                case STARTING:
-                    Predicate less =  cb.greaterThanOrEqualTo(root.get("endTime"),now);
-                    Predicate greater = cb.lessThanOrEqualTo(root.get("startTime"),now);
-                    status = cb.and(less,greater);
-                    break;
-                case ENDED:
-                    status = cb.lessThanOrEqualTo(root.get("endTime"),now);
-                    break;
-                default:
-                    status = cb.greaterThanOrEqualTo(root.get("startTime"),now);
-            }
-            predicate = cb.and(status);
 
+            if(meetParam.getStatus() == null){
+                  //status = cb.greaterThanOrEqualTo(root.get("startTime"),now);
+            }
+            else {
+                switch (meetParam.getStatus()) {
+                    case NOT_STARTED:
+                        status = cb.greaterThanOrEqualTo(root.get("startTime"), now);
+                        break;
+                    case STARTING:
+                        Predicate less = cb.greaterThanOrEqualTo(root.get("endTime"), now);
+                        Predicate greater = cb.lessThanOrEqualTo(root.get("startTime"), now);
+                        status = cb.and(less, greater);
+                        break;
+                    case ENDED:
+                        status = cb.lessThanOrEqualTo(root.get("endTime"), now);
+                        break;
+                    default:
+                        status = cb.greaterThanOrEqualTo(root.get("startTime"), now);
+                }
+                predicate = cb.and(status);
+            }
+            if(meetParam.getDeadLine() !=null){
+                Predicate deadLine = cb.greaterThanOrEqualTo(root.get("deadline"),meetParam.getDeadLine());
+                predicate = cb.and(deadLine);
+            }
             if(meetParam.getStartTime() != null){
                 Predicate startTime =  cb.greaterThanOrEqualTo(root.get("startTime"),meetParam.getStartTime());
-                predicate = cb.and(predicate,startTime);
+                if(Optional.ofNullable(predicate).isPresent()) {
+                    predicate = cb.and(predicate,startTime);
+                }
+                else predicate = cb.and(startTime);
             }
             if(meetParam.getEndTime() != null){
                 Predicate endTime =  cb.lessThanOrEqualTo(root.get("endTime"),meetParam.getEndTime());
-                predicate = cb.and(predicate,endTime);
+                if(Optional.ofNullable(predicate).isPresent()) {
+                    predicate = cb.and(predicate,endTime);
+                }
+                else predicate = cb.and(endTime);
             }
-            if (StringUtils.isNotBlank(meetParam.getName())) {
+            if (StringUtils.hasText(meetParam.getName())) {
                 Predicate name = cb.like(root.get("name"), "%" + meetParam.getName() + "%");
-                 predicate = cb.and(predicate,name);
+                if(Optional.ofNullable(predicate).isPresent()) {
+                    predicate = cb.and(predicate,name);
+                }
+                else predicate = cb.and(name);
             }
-            if (StringUtils.isNotBlank(meetParam.getAddress())) {
+            if (StringUtils.hasText(meetParam.getAddress())) {
                 Predicate address = cb.like(root.get("address"),
                     "%" + meetParam.getAddress() + "%");
-                  predicate = cb.and(predicate,address);
+                if(Optional.ofNullable(predicate).isPresent()) {
+                    predicate = cb.and(predicate,address);
+                }
+                else predicate = cb.and(address);
             }
-            return  query.where(predicate).getRestriction();
+            if(predicate != null){
+                return query.where(predicate).getRestriction();
+            }
+            return null;
         },page);
 
         for (Meeting meeting : meets.getContent()){
@@ -143,17 +163,21 @@ public class MeetServiceImpl implements MeetService, ApplicationEventPublisherAw
         Assert.notNull(updateParam.getToken(),"meet token must not be null");
         Meeting meeting = meetRepository.findOne(updateParam.getToken());
         Assert.notNull(meeting,"meeting not found,check token please");
+        Meeting exMeeting  = meetRepository.findByNameEquals(updateParam.getName());
+        if(exMeeting != null){
+            Assert.isTrue(exMeeting.getToken().equals(updateParam.getToken()),"meet name can not be duplicate");
+        }
         meeting.setName(Optional.ofNullable(updateParam.getName()).orElse(meeting.getName()));
         meeting.setAddress(Optional.ofNullable(updateParam.getAddress()).orElse(meeting.getAddress()));
         meeting.setStartTime(Optional.ofNullable(updateParam.getStartTime()).orElse(meeting.getStartTime()));
         meeting.setEndTime(Optional.ofNullable(updateParam.getEndTime()).orElse(meeting.getEndTime()));
+        meeting.setSignTime(Optional.ofNullable(updateParam.getSignTime()).orElse(meeting.getSignTime()));
         meeting.setDeadline(Optional.ofNullable(updateParam.getDeadline()).orElse(meeting.getDeadline()));
         meeting.setVenue(Optional.ofNullable(updateParam.getVenue()).orElse(meeting.getVenue()));
         try {
             Meeting updated = meetRepository.save(meeting);
             publisher.publishEvent(new MeetingUpdateEvent(this, updated));
 //            SetModifyResult setModifyResult = facePlatClient.updateFaceset(meeting);
-            //TODO RESULT
             return new MeetingUpdateResult(meeting.getToken());
         } catch (Exception e){
             throw new ServiceException(e);

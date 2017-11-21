@@ -7,6 +7,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
@@ -109,6 +110,7 @@ public class StatsApi {
   @RequestMapping(value = "meetingStats")
   @ApiOperation(value = "签到人数统计", notes = "签到人数统计")
   @Log(module = "统计报表", operation = "签到人数统计")
+  @PreAuthorize("hasAuthority('STAT_QUERY')")
   public RestResult<PageResult<MeetingManage>> meetingStats(@Valid @ModelAttribute QueryMeetingManageParam param, BindingResult errResult) {
     if (errResult.hasErrors()) {
       List<ObjectError> errorList = errResult.getAllErrors();
@@ -137,6 +139,7 @@ public class StatsApi {
   @RequestMapping(value = "recognitionList")
   @ApiOperation(value = "查询人脸比对信息", notes = "查询人脸比对信息")
   @Log(module = "统计报表", operation = "查询人脸比对信息")
+  @PreAuthorize("hasAuthority('FACE_LOG_QUERY')")
   public RestResult<PageResult<FaceRecognitionResult>> recognitionList(@Valid @ModelAttribute QueryStatsParam param, BindingResult errResult) {
     if (errResult.hasErrors()) {
       List<ObjectError> errorList = errResult.getAllErrors();

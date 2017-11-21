@@ -34,8 +34,8 @@ public class UpdateBizConfigParam extends RestParam {
   
   @ApiModelProperty(value = "成功阀值")
   private Float successThreshold;
-  @ApiModelProperty(value = "失败阀值")
-  private Float failureThreshold;
+  /*@ApiModelProperty(value = "失败阀值")
+  private Float failureThreshold;*/
   
   @ApiModelProperty(value = "是否开启1:1")
   private Boolean one2oneOn;
@@ -48,7 +48,7 @@ public class UpdateBizConfigParam extends RestParam {
   public String toString() {
     return "UpdateBizConfigParam [configId=" + configId + ", text=" + text
         + ", img=" + img.getOriginalFilename() + ", audio=" + audio.getOriginalFilename()
-        + ", successThreshold=" + successThreshold + ", failureThreshold=" + failureThreshold
+        + ", successThreshold=" + successThreshold
         + ", one2oneOn=" + one2oneOn + ", one2NOn=" + one2NOn + ", livebodyOn=" + livebodyOn + "]";
   }
 

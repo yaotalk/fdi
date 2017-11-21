@@ -1,6 +1,7 @@
 package com.minivision.fdi.mvc;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,6 +30,7 @@ public class StatsController {
   @GetMapping("exportMeetingStats")
   @ApiOperation(value = "签到人数统计报表导出", notes = "签到人数统计报表导出")
   @Log(module = "统计报表", operation = "签到人数统计报表导出")
+  @PreAuthorize("hasAuthority('STAT_EXPORT')")
   public ModelAndView exportMeetingStats(QueryMeetingManageParam param) {
     return new ModelAndView(new MeetingStatsExcelView()).addObject("data", meetingService.findByPage(param));
   }
@@ -36,6 +38,7 @@ public class StatsController {
   @GetMapping("exportRecognitionStats")
   @ApiOperation(value = "人脸比对信息统计报表导出", notes = "人脸比对信息统计报表导出")
   @Log(module = "统计报表", operation = "人脸比对信息统计报表导出")
+  @PreAuthorize("hasAuthority('FACE_LOG_EXPORT')")
   public ModelAndView exportRecognitionStats(QueryStatsParam param) {
     return new ModelAndView(new RecognitionStatsExcelView()).addObject("data", statsService.findByPage(param));
   }

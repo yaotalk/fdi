@@ -23,4 +23,16 @@ public interface DeviceService {
   
   Page<Device> findByPage(QueryDeviceParam param);
   
+  void activateDevice(String deviceSn);
+  
+  void deviceOnline(String sn);
+  
+  void deviceOffline(String sn);
+  
+  void deviceLost(String sn);
+  
+  Device findDevice(String sn);
+  
+  String getActivationCode(String model, String sn);
+  
 }

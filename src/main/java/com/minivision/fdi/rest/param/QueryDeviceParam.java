@@ -21,6 +21,8 @@ public class QueryDeviceParam extends PageParam {
   
   @ApiModelProperty(value = "设备是否在线")
   private Boolean online;
+  @ApiModelProperty(value = "设备是否激活")
+  private Boolean activated;
   
   @ApiModelProperty(value = "设备关联实体ID，如会议等")
   private String meetingToken;

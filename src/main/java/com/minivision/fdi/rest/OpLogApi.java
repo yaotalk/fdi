@@ -7,6 +7,7 @@ import javax.validation.Valid;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -36,6 +37,7 @@ public class OpLogApi {
 
   @RequestMapping("opLogs")
   @ApiOperation(value = "获取日志列表", notes = "获取日志列表")
+  @PreAuthorize("hasAuthority('_SUPER_ADMIN')")
   public RestResult<PageResult<OpLog>> findOpLogs(@Valid @ModelAttribute OpLogParam param, BindingResult errResult) {
     if (errResult.hasErrors()) {
       List<ObjectError> errorList = errResult.getAllErrors();

@@ -21,6 +21,8 @@ public class MeetParam extends PageParam{
 
     private Long endTime;
 
+    private Long deadLine;
+
     @Override public String toString() {
         return "MeetParam{" + "name='" + name + '\'' + ", address='" + address + '\'' + ", status="
             + status + ", startTime=" + startTime + ", endTime=" + endTime + '}';

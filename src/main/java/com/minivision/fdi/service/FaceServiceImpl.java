@@ -6,16 +6,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 
+import com.minivision.fdi.domain.FaceMsg;
 import com.minivision.fdi.domain.FaceRecMsg;
 import com.minivision.fdi.domain.QrRecMsg;
+import com.minivision.fdi.entity.BizConfig;
 import com.minivision.fdi.faceplat.result.detect.SearchResult;
-import org.apache.commons.lang3.StringUtils;
+import com.minivision.fdi.repository.BizConfigRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +24,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -55,6 +57,7 @@ import com.minivision.fdi.rest.result.common.PageResult;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 @Service
 @Slf4j
@@ -72,19 +75,22 @@ public class FaceServiceImpl implements FaceService, ApplicationEventPublisherAw
 
     private ApplicationEventPublisher publisher;
 
-    @Value("${threshold:0.80}")
+    @Autowired
+    private BizConfigRepository bizConfigRepository;
+
+    @Value("${system.config.threshold:0.80}")
     private float threshold;
 
     @Override public PageResult<Face> findFaceInfos(FaceParam faceParam) {
-            Pageable page = new ChunkRequest(faceParam.getOffset(),faceParam.getLimit());
+            Pageable page = new ChunkRequest(faceParam.getOffset(), faceParam.getLimit(), new Sort(Sort.Direction.DESC, "createTime"));
             Page<Face> faces = faceRepository.findAll((root, query, cb) -> {
                 Path<Meeting> meet = root.get("meeting");
                 Predicate predicate =null;
-                if (StringUtils.isNotBlank(faceParam.getName())) {
+                if (StringUtils.hasText(faceParam.getName())) {
                     Predicate name = cb.like(root.get("name"), "%" + faceParam.getName() + "%");
                     predicate = cb.and(name);
                 }
-                if (StringUtils.isNotBlank(faceParam.getPhoneNumber())) {
+                if (StringUtils.hasText(faceParam.getPhoneNumber())) {
                     Predicate phoneNumber = cb.like(root.get("phoneNumber"),
                         "%" + faceParam.getPhoneNumber() + "%");
                     if(Optional.ofNullable(predicate).isPresent()) {
@@ -92,7 +98,7 @@ public class FaceServiceImpl implements FaceService, ApplicationEventPublisherAw
                     }
                     else predicate  = cb.and(phoneNumber);
                 }
-                if (StringUtils.isNotBlank(faceParam.getCompanyName())) {
+                if (StringUtils.hasText(faceParam.getCompanyName())) {
                     Predicate company = cb.like(root.get("companyName"),
                         "%" + faceParam.getCompanyName() + "%");
                     if(Optional.ofNullable(predicate).isPresent()) {
@@ -100,12 +106,19 @@ public class FaceServiceImpl implements FaceService, ApplicationEventPublisherAw
                     }
                     else predicate = cb.and(company);
                 }
-                if (StringUtils.isNotBlank(faceParam.getMeetName())) {
+                if (StringUtils.hasText(faceParam.getMeetName())) {
                     Predicate meetName = cb.like(meet.get("name"), "%"+faceParam.getMeetName()+"%");
                     if(Optional.ofNullable(predicate).isPresent()) {
                         predicate = cb.and(predicate, meetName);
                     }
                     else predicate = cb.and(meetName);
+                }
+                if (StringUtils.hasText(faceParam.getMeetToken())) {
+                    Predicate meetToken = cb.equal(meet.get("token"), faceParam.getMeetToken());
+                    if(Optional.ofNullable(predicate).isPresent()) {
+                        predicate = cb.and(predicate, meetToken);
+                    }
+                    else predicate = cb.and(meetToken);
                 }
                 if(predicate != null) {
                     query.where(predicate);
@@ -139,6 +152,12 @@ public class FaceServiceImpl implements FaceService, ApplicationEventPublisherAw
                 String faceToken = detectedFace.getFaceToken();
                 face.setFaceToken(faceToken);
                 AddFaceResult addFaceResult = saveFace(rectangle,imgData, ".jpg", face);
+                
+                List<FailureDetail> failureDetail = addFaceResult.getFailureDetail();
+                
+                if(failureDetail != null && failureDetail.size() != 0){
+                  throw new ServiceException(500, failureDetail.get(0).toString());
+                }
             }
             Face created = faceRepository.saveAndFlush(face);
             publisher.publishEvent(new FaceAddEvent(this, created));
@@ -231,7 +250,7 @@ public class FaceServiceImpl implements FaceService, ApplicationEventPublisherAw
             List<String> faceTokens = faces.stream().filter(face -> face.getFaceToken()!=null).map(Face::getFaceToken).collect(Collectors.toList());
             RemoveFaceResult removeFaceResult = null;
             if(!faceTokens.isEmpty()) {
-                String tokens = StringUtils.join(faceTokens, ",");
+                String tokens = StringUtils.collectionToCommaDelimitedString(faceTokens);
                 removeFaceResult = facePlatClient.removeFace(faceDelParam.getMeetToken(), tokens);
 //                BeanUtils.copyProperties(removeFaceResult, faceDelResult);
             }
@@ -246,21 +265,35 @@ public class FaceServiceImpl implements FaceService, ApplicationEventPublisherAw
 
     }
 
-    @Override public Face search(FaceRecMsg faceRecMsg) throws RuntimeException{
-           //TODO try
+    @Override public FaceMsg search(FaceRecMsg faceRecMsg) throws RuntimeException{
             SearchResult searchResult = facePlatClient
                 .searchByFeature(faceRecMsg.getMeetingId(), faceRecMsg.getFeature(), 1);
             if (!CollectionUtils.isEmpty(searchResult.getResults())) {
+                BizConfig bizConfig = bizConfigRepository.findByMeetingToken(faceRecMsg.getMeetingId());
+                if(bizConfig !=null){
+                    threshold = bizConfig.getSuccessThreshold();
+                }
                 if (searchResult.getResults().get(0).getConfidence() >= threshold) {
-                    return faceRepository.findByFaceToken(searchResult.getResults().get(0).getFaceToken());
+                    Face face = faceRepository.findByFaceToken(searchResult.getResults().get(0).getFaceToken());
+                    if(face == null){
+                        return null;
+                    }
+                    int count = saveAndCount(faceRecMsg.getMeetingId(), face);
+                    return  new FaceMsg(face,(float)searchResult.getResults().get(0).getConfidence(),count);
                 }
             }
         return null;
     }
 
-    @Override public Face searchByQrCode(QrRecMsg regMsg) {
+
+
+    @Override public FaceMsg searchByQrCode(QrRecMsg regMsg) {
         Face face = faceRepository.findByQrCodeAndMeetingToken(regMsg.getQrCode(), regMsg.getMeetingId());
-        return  face;
+        if(face == null){
+            return null;
+        }
+        int count = saveAndCount(regMsg.getMeetingId(), face);
+        return  new FaceMsg(face,count);
     }
 
     DetectedFace detect(byte[] imgData) throws FacePlatException {
@@ -271,6 +304,12 @@ public class FaceServiceImpl implements FaceService, ApplicationEventPublisherAw
         }
         DetectedFace detectedFace = faces.get(0);
         return  detectedFace;
+    }
+
+    private int saveAndCount(String meetToken, Face face) {
+        face.setSignIn(true);
+        faceRepository.save(face);
+        return faceRepository.countSignIn(meetToken,true);
     }
 
     @Override

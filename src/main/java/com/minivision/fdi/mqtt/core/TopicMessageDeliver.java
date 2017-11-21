@@ -17,6 +17,7 @@ import org.springframework.core.type.StandardMethodMetadata;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 
+import com.minivision.fdi.config.CommonConfig;
 import com.minivision.fdi.mqtt.core.MqttMessageHandler.TopicHandler;
 
 import io.moquette.interception.messages.InterceptPublishMessage;
@@ -38,7 +39,7 @@ public class TopicMessageDeliver {
   
   @PostConstruct
   private void init(){
-    executor = Executors.newCachedThreadPool();
+    executor = Executors.newCachedThreadPool(new CommonConfig.FdiThreadFactory("mqttHandlerWorker"));
     
     Map<String, Object> beans = context.getBeansWithAnnotation(MqttMessageHandler.class);
 

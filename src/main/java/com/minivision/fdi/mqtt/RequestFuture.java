@@ -132,4 +132,12 @@ public class RequestFuture<T> {
     this.responseBodyType = responseBodyType;
   }
 
+  @Override
+  public String toString() {
+    return "RequestFuture [request=" + request + ", responseBodyType=" + responseBodyType
+        + ", response=" + response + ", buildNanoTime=" + buildNanoTime + ", sendNanoTime="
+        + sendNanoTime + ", responseNanoTime=" + responseNanoTime + ", done=" + done
+        + ", throwable=" + throwable + "]";
+  }
+
 }

@@ -15,7 +15,9 @@ import org.springframework.util.StringUtils;
 
 import com.minivision.ai.util.ChunkRequest;
 import com.minivision.fdi.common.BeanPropertyUtils;
+import com.minivision.fdi.device.OnlineDeviceStore;
 import com.minivision.fdi.entity.Device;
+import com.minivision.fdi.mqtt.protocol.ActiveCodeUtil;
 import com.minivision.fdi.repository.DeviceRepository;
 import com.minivision.fdi.repository.MeetRepository;
 import com.minivision.fdi.rest.param.CreateDeviceParam;
@@ -31,6 +33,9 @@ public class DeviceServiceImpl implements DeviceService {
   
   @Autowired 
   private MeetRepository meetRepository;
+  
+  @Autowired
+  private ActiveCodeUtil activeCodeUtil;
   
   @Override
   public Device createDevice(CreateDeviceParam device) {
@@ -77,6 +82,36 @@ public class DeviceServiceImpl implements DeviceService {
     BeanUtils.copyProperties(param, device);
     Example<Device> example = Example.of(device, matcher);
     return deviceRepo.findAll(example, new ChunkRequest(param.getOffset(), param.getLimit(), new Sort(Direction.DESC, "updateTime")));
+  }
+
+  @Override
+  public void activateDevice(String deviceSn) {
+    deviceRepo.activate(deviceSn);
+  }
+  
+  
+  @Autowired
+  private OnlineDeviceStore onlineDeviceStore;
+  
+  public void deviceOnline(String sn) {
+    onlineDeviceStore.online(sn);
+  }
+  
+  public void deviceOffline(String sn) {
+    onlineDeviceStore.offline(sn);
+  }
+  
+  public void deviceLost(String sn) {
+    onlineDeviceStore.lost(sn);
+  }
+  
+  public Device findDevice(String sn) {
+    return onlineDeviceStore.findDevice(sn);
+  }
+
+  @Override
+  public String getActivationCode(String model, String sn) {
+    return activeCodeUtil.generateActiveCode(model, sn);
   }
   
 }

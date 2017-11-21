@@ -11,22 +11,24 @@ public class DeviceAuthorizator implements IAuthorizator {
   private static final Logger logger = LoggerFactory.getLogger(DeviceAuthorizator.class);
 
   public boolean canWrite(Topic topic, String user, String client) {
-    logger.trace("Auth {}@{} can write to Topic {}", user, client, topic);
-    if (StringUtils.isEmpty(user)) {
-      return false;
-    }
+//    logger.trace("Auth {}@{} can write to Topic {}", user, client, topic);
+//    if (StringUtils.isEmpty(user)) {
+//      return false;
+//    }
 
     // TODO 判断topic client user是否匹配；
     return true;
   }
 
   public boolean canRead(Topic topic, String user, String client) {
-    logger.trace("Auth {}@{} can read from Topic {}", user, client, topic);
-    if (StringUtils.isEmpty(user)) {
-      return false;
-    }
-
-    // TODO 判断topic client user是否匹配；
+    //    logger.trace("Auth {}@{} can read from Topic {}", user, client, topic);
+    //    if (StringUtils.isEmpty(user)) {
+    //      return false;
+    //    }
+    //
+    //    // TODO 判断topic client user是否匹配；
+    //    return true;
+    //  }
     return true;
   }
 }

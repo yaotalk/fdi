@@ -26,22 +26,18 @@ public class DefaultOnlineDeviceStoreImpl implements OnlineDeviceStore {
     
     Assert.notNull(device, "Illegal device attempt to online, sn : "+ sn);
     
+    deviceRepository.online(sn);
     device.setOnline(true);
-    Device persisted = deviceRepository.saveAndFlush(device);
     
     lostDevices.remove(sn);
-    onlineDevices.put(sn, persisted);
+    onlineDevices.put(sn, device);
   }
   
   public void offline(String sn) {
     lostDevices.remove(sn);
     onlineDevices.remove(sn);
     
-    Device device = deviceRepository.findBySn(sn);
-    if (device != null) {
-      device.setOnline(false);
-      deviceRepository.saveAndFlush(device);
-    }
+    deviceRepository.offline(sn);
   }
   
   public void lost(String sn) {
@@ -51,9 +47,9 @@ public class DefaultOnlineDeviceStoreImpl implements OnlineDeviceStore {
     }
     
     if(device != null) {
-      lostDevices.put(sn, device);
       device.setOnline(false);
-      deviceRepository.saveAndFlush(device);
+      lostDevices.put(sn, device);
+      deviceRepository.offline(sn);
     }
   }
   

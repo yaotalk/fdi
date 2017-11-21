@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import com.minivision.fdi.entity.Face;
+import org.springframework.data.jpa.repository.Query;
 
 public interface FaceRepository extends JpaRepository<Face,String> ,
     JpaSpecificationExecutor<Face> {
@@ -22,4 +23,6 @@ public interface FaceRepository extends JpaRepository<Face,String> ,
     
     int countByMeetingToken(String meetingToken);
 
+    @Query(value = "select count(*) from face where face.meeting_id =?1 and face.sign_in =?2",nativeQuery = true)
+    int countSignIn(String meetToken,boolean signIn);
 }

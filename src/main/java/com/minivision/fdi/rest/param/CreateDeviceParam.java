@@ -33,8 +33,7 @@ public class CreateDeviceParam extends RestParam {
   private String parentSn;
   @ApiModelProperty(value = "设备位置")
   private String location;
-  @NotBlank(message = "设备联系人不能为空")
-  @ApiModelProperty(value = "设备联系人", required = true)
+  @ApiModelProperty(value = "设备联系人")
   private String contact;
   @ApiModelProperty(value = "设备IP")
   private String ip;

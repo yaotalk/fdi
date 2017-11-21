@@ -49,14 +49,20 @@ public class Packet<T> {
       public static final int CONFIG_SET = 101;
       public static final int CONFIG_AQUIRE = 102;
       public static final int BIND_FACESET = 103;
-      public static final int FACESET_BOUND = 104;
+      public static final int FACESET_BIND = 104;
       public static final int SIGN_IN = 105;
       public static final int SIGN_FAIL =106;
       public static final int REFRESH_FACESET = 107;
 
       public static final int FACE_SEARCH = 108;
       public static final int QR_SEARCH = 109;
+      
+      public static final int DETECT_ACTIVE = 110;
+      public static final int ACTIVE = 111;
+      
+      public static final int UNBIND_FACESET = 112;
 
+      public static final int LIST_MEETING = 112;
     }
     
     public static class Type{
@@ -68,6 +74,8 @@ public class Packet<T> {
       public static final int RESPONSE_PROCESS_FAIL = 5;
       // boundary of vendor specified error
       public static final int RESPONSE_VENDOR_SPEC_ERROR = 10;
+      
+      public static final int RESPONSE_ACTIVECODE_ERROR = 11;
       
       public static String getSysDesc(int errType) {
         return null;

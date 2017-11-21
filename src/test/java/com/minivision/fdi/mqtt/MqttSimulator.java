@@ -1,8 +1,10 @@
 package com.minivision.fdi.mqtt;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.Base64;
 
-import com.minivision.fdi.domain.QrRecMsg;
+import org.apache.commons.io.FileUtils;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
@@ -14,9 +16,9 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.minivision.fdi.domain.FaceRecMsg;
 import com.minivision.fdi.mqtt.protocol.Packet;
 import com.minivision.fdi.mqtt.protocol.SecurityUtil;
+import com.minivision.fdi.rest.param.CreateStatsParam;
 import com.minivision.fdi.mqtt.protocol.Packet.Head;
 import com.minivision.fdi.mqtt.protocol.Packet.Head.Type;
 
@@ -25,11 +27,11 @@ public class MqttSimulator {
   
   private static final ObjectMapper MAPPER = new ObjectMapper();
 
-  private static final String clientid = "8";
+  private static final String clientid = "11111111";
 
   private MqttClient client;
-  private String userName = "8";
-  private String passWord = "pad::8";
+  private String userName = "11111111";
+  private String passWord = "pad::11111111";
 
 
   public MqttSimulator() throws MqttException {
@@ -52,7 +54,6 @@ public class MqttSimulator {
         public void messageArrived(String topic, MqttMessage message)
             throws Exception {
           System.out.println("receive a message on : "+ topic);
-          System.out.println("payload : " + new String(message.getPayload()));
           Packet<?> packet = MAPPER.readValue(message.getPayload(), Packet.class);
           Head head = packet.getHead();
           head.setType(Type.RESPONSE_OK);
@@ -71,6 +72,7 @@ public class MqttSimulator {
       });
       client.connect(options);
       client.subscribe("/d/pad/"+clientid);
+      client.subscribe("/d/pad/a08d1670de8d");
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -95,21 +97,25 @@ public class MqttSimulator {
     status.setMem(44.44f);
     status.setTimestamp(new Date());*/
     
-//    FaceRecMsg faceRegMsg = new FaceRecMsg();
-//    faceRegMsg.setMeetingId("8ebaa40a-4e27-4002-81ff-7ee27c16727c");
-//    faceRegMsg.setTimestamp(System.currentTimeMillis());
-//    faceRegMsg.setFeature("321");
-
-    QrRecMsg recMsg = new QrRecMsg();
-    recMsg.setMeetingId("8ebaa40a-4e27-4002-81ff-7ee27c16727c");
-    recMsg.setQrCode("111111");
-    recMsg.setTimestamp(System.currentTimeMillis());
+    /*FaceRecMsg faceRegMsg = new FaceRecMsg();
+    faceRegMsg.setMeetingId("123");
+    faceRegMsg.setTimestamp(System.currentTimeMillis());
+    faceRegMsg.setFeature("321");*/
     
-    Head head = new Head(10000, 109, Type.REQUEST);
+    CreateStatsParam stat = new CreateStatsParam();
     
-    Packet<?> packet = new Packet<>(head, recMsg);
+    byte[] bs = FileUtils.readFileToByteArray(new File("E://9000001.jpg"));
     
+    String capImg = Base64.getEncoder().encodeToString(bs);
+    
+    stat.setCapImg(capImg);
+    
+    Head head = new Head(10000, 4, Type.REQUEST);
+    
+    Packet<?> packet = new Packet<>(head, stat);
     simulator.publishObject("/s/pad", packet);
     
+    MqttMessage message = new MqttMessage(bs);
+    simulator.publish("/s", message);
   }
 }

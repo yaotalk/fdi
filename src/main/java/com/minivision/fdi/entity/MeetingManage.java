@@ -64,6 +64,11 @@ public class MeetingManage extends IdEntity {
   @Temporal(TemporalType.TIMESTAMP)
   @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
   @Column(nullable = false)
+  private Date signStartTime;
+  
+  @Temporal(TemporalType.TIMESTAMP)
+  @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+  @Column(nullable = false)
   private Date signEndTime;
   
   @CreatedDate

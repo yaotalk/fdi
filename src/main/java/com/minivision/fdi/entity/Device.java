@@ -43,6 +43,11 @@ public class Device extends IdEntity {
   private String model;
   
   private Boolean online = false;
+  private Boolean activated = false;
+  
+  @Temporal(TemporalType.TIMESTAMP)
+  @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+  private Date activateTime;
   
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "meeting_token",

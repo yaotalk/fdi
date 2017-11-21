@@ -43,8 +43,6 @@ public class TopicMessageHandler {
       log.info("receive a packet, head : {}", head);
       int code = head.getCode();
       int type = head.getType();
-      
-      System.err.println(model);
       if(Type.isResponse(type)){
         handleGenericResponse(head, parser);
         return;
@@ -52,6 +50,8 @@ public class TopicMessageHandler {
       codeMessageDeliver.deliver(code, type, model, clientId, username, head, parser);
     } catch (IOException e) {
       log.error("deserialize payload error", e);
+    } finally {
+      payload.release();
     }
   }
   

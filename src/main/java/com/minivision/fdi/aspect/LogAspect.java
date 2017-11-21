@@ -8,6 +8,7 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -60,8 +61,9 @@ public class LogAspect {
     String ip = request.getRemoteAddr();
     // save in DB
     OpLog opLog = new OpLog();
+    Authentication user = SecurityContextHolder.getContext().getAuthentication();
     //获取操作账户用户名
-    String username = SecurityContextHolder.getContext().getAuthentication().getName();
+    String username = user == null ? "anonymous" : user.getName();
     opLog.setUsername(StringUtils.hasText(username) ? username : "anonymous");
     opLog.setIp(ip);
     opLog.setModule(logAnno.module());

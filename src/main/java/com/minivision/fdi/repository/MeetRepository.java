@@ -6,4 +6,6 @@ import com.minivision.fdi.entity.Meeting;
 
 
 public interface MeetRepository extends JpaRepository<Meeting, String>,JpaSpecificationExecutor<Meeting> {
+
+    Meeting findByNameEquals(String name);
 }
